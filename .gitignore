@@ -1,0 +1,8 @@
+test.py
+.coverage
+__pycache__/
+.pytest_cashe/
+.env
+venv/
+.idea/
+data/bot_info.db

@@ -1,0 +1,4 @@
+python-telegram-bot==13.11
+requests
+python-dotenv
+sqlalchemy==2
