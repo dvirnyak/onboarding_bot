@@ -30,9 +30,7 @@ class User(Base, CRUD):
     last_name: Mapped[str] = mapped_column(String(60))
     chat_id: Mapped[int] = mapped_column(Integer())
 
-    is_admin: Mapped[bool] = mapped_column(Boolean(), default=False)
     last_message_id: Mapped[int] = mapped_column(Integer(), default=0)
-
     button_number: Mapped[int] = mapped_column(Integer(), default=0)
     state: Mapped[str] = mapped_column(String(30), default="initial")
     current_block: Mapped[int] = mapped_column(Integer(), default=0)
@@ -45,6 +43,11 @@ class User(Base, CRUD):
     records: Mapped[List["Record"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+
+    is_admin: Mapped[bool] = mapped_column(Boolean(), default=False)
+    admin_notifications: Mapped[int] = mapped_column(Integer(), default=0b111)
+    admin_cache: Mapped[str] = mapped_column(String(1000), default=None)
+    admin_current_page: Mapped[int] = mapped_column(Integer(), default=0)
 
     def __repr__(self) -> str:
         return f"{self.chat_id}, {self.first_name} {self.last_name}"
@@ -109,5 +112,3 @@ class Product(Base, CRUD):
     def __repr__(self) -> str:
         return (f"{self.title}"
                 f"\n\n{self.description}")
-
-

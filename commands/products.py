@@ -9,17 +9,17 @@ from base.utils import get_user, get_product
 from base.models import *
 
 import commands
-from commands.bot_utils import error_handler, button_handler
+from commands.bot_utils import error_handler, button_handler, get_image
 from commands.quizes import begin_quiz
 
 
 def get_product_text(product: Product):
     text = (f"<b>{product.title}</b>\n\n"
-            f"Описание: {product.description}\n\n"
-            f"Цена: {product.price}\n\n"
-            f"Используют вместе с\n- ")
+            f"📝 Описание: {product.description}\n\n"
+            f"💵 Цена: {product.price}\n\n"
+            f"🥂 Совмещают с\n- ")
     text += "\n- ".join(json.loads(product.together))
-    text += "\n\nЭффекты:\n- " + "\n- ".join(json.loads(product.together))
+    text += "\n\n✨ Эффекты:\n- " + "\n- ".join(json.loads(product.together))
 
     return text
 
@@ -43,9 +43,11 @@ async def show_product(update: Update, context: CallbackContext,
          KeyboardButton("Дальше")],
     ]
     markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    await context.bot.send_message(chat_id=user.chat_id,
-                                   text=text, parse_mode='HTML',
-                                   reply_markup=markup)
+    image = await get_image(product.image_path, user, context)
+
+    await context.bot.send_photo(chat_id=user.chat_id, photo=image,
+                                 caption=text, parse_mode='HTML',
+                                 reply_markup=markup)
 
 
 @button_handler
@@ -91,6 +93,11 @@ async def next_product(update: Update, context: CallbackContext,
 async def previous_product(update: Update, context: CallbackContext,
                            user: User, session: Session):
     if user.current_product == 0:
+        message = await context.bot.send_message(chat_id=user.chat_id,
+                                                 text="Перенаправляю в меню..",
+                                                 reply_markup=ReplyKeyboardRemove())
+        await context.bot.deleteMessage(chat_id=user.chat_id, message_id=message.message_id)
+
         await commands.main_menu.main_menu(update, context, user, session)
         return
 

@@ -1,7 +1,9 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ReplyKeyboardRemove, ReplyKeyboardMarkup, \
     KeyboardButton
 from telegram.ext import CallbackContext
-from config import Session, stickers
+
+from commands import admin
+from config import Session, stickers, smiles_gradient
 from base.utils import get_user
 from base.models import *
 from config import Session, BLOCKS_COUNT
@@ -59,14 +61,14 @@ async def quiz_solving(update: Update, context: CallbackContext,
 
 async def confirm(update: Update, context: CallbackContext,
                   user: User, session: Session):
-    message_text = "<b>Ваши ответы:</b>\n\n"
+    message_text = "<b>📋 Ваши ответы:</b>\n\n"
     i = 0
     for record in user.records:
         if record.quiz_index == user.quiz_index:
             message_text += f"{i + 1}) {record.answer}\n"
             i += 1
     keyboard = [
-        [InlineKeyboardButton("Подтвердить", callback_data=f'quiz::finish_{user.button_number}')],
+        [InlineKeyboardButton("✅ Подтвердить", callback_data=f'quiz::finish_{user.button_number}')],
         [InlineKeyboardButton("◀ Назад", callback_data=f'quiz::back_{user.button_number}')]
     ]
     markup = InlineKeyboardMarkup(keyboard)
@@ -81,13 +83,19 @@ async def begin_quiz(update: Update, context: CallbackContext,
                      user: User, session: Session):
     user.state = "quiz_start_awaiting"
 
+    time_str = ""
+    if (QUIZ_TIME - 1) // 60 != 0:
+        time_str += f"{(QUIZ_TIME - 1) // 60} минут"
+    if (QUIZ_TIME - 1) % 60 != 0:
+        time_str += " {(QUIZ_TIME - 1) % 60} секунд"
+
     # send actual message
     message_text = (f"<b>Тест {user.current_block + 1}</b>\n\n"
-                    f"Вам будет дано {(QUIZ_TIME - 1) // 60} минут {(QUIZ_TIME - 1) % 60} секунд\n\n"
-                    f"Когда будете готовы, нажмите <i>Начать</i>\n"
+                    f"⏳ Вам будет дано {time_str} \n\n"
+                    f"Когда будете готовы, нажмите <b>▶️ Начать</b>\n"
                     f"Удачи!")
     keyboard = [
-        [InlineKeyboardButton("Начать", callback_data=f'quiz::start_{user.button_number}')],
+        [InlineKeyboardButton("▶️ Начать", callback_data=f'quiz::start_{user.button_number}')],
     ]
     markup = InlineKeyboardMarkup(keyboard)
     message = await context.bot.send_message(chat_id=user.chat_id, text=message_text,
@@ -97,11 +105,23 @@ async def begin_quiz(update: Update, context: CallbackContext,
 
 
 async def end_quiz(user: User, context: CallbackContext, session: Session()):
+    await admin.notify(user, session, "quiz_finished")
     await show_results(user, context, session)
 
     user.quiz_index += 1
     user.current_block += 1
     user.current_product = 0
+
+    if user.max_block == BLOCKS_COUNT - 1 \
+            and user.current_block == BLOCKS_COUNT:
+        await admin.notify(user, session, "finished_study")
+        message_text = ("🥳 Поздравляю!\n\n✔️ Вы усвоили весь материал и прошли все тесты\n\n"
+                        "При необходимости это можно сделать ещё раз через меню")
+        await context.bot.send_message(chat_id=user.chat_id,
+                                       text=message_text)
+        await context.bot.send_sticker(chat_id=user.chat_id,
+                                       sticker=stickers["chill"])
+
     user.max_block = max(user.current_block, user.max_block)
     user.state = "quiz_finished"
     if not (context.job is None):
@@ -130,8 +150,12 @@ async def show_results(user: User, context: CallbackContext, session: Session):
     # form a message
 
     message_text = f"<b>Тест {user.current_block + 1} завершён\n"
+    percent = 0
     if count != 0:
-        message_text += f"{int(round(float(correct_count) / float(count) * 100, 0))} %</b>\n\n"
+        percent = int(round(float(correct_count) / float(count) * 100, 0))
+    smile = smiles_gradient[percent * (len(smiles_gradient) - 1) // 100]
+
+    message_text += f"{smile} {percent} %</b>\n\n"
     # sugar
     if correct_count != count:
         message_text += f"Вы ответили верно на {correct_count} из {count} вопросов."
@@ -150,8 +174,10 @@ async def show_results(user: User, context: CallbackContext, session: Session):
     ]
     markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
+    sticker = stickers['respect'] if percent >= 50 else stickers['sad']
+    sticker = stickers['congratulate'] if percent == 100 else sticker
     await context.bot.send_sticker(chat_id=user.chat_id,
-                                   sticker=stickers['respect'],
+                                   sticker=sticker,
                                    reply_markup=markup)
 
 
@@ -192,8 +218,8 @@ async def show_question(user: User, context: CallbackContext, session: Session):
     remaining_time_str = f"⏳Осталось: {remaining_time.seconds // 60}:{(remaining_time.seconds % 60):02d}"
 
     message_text = (f"<b>Вопрос {user.current_question + 1} / {len(questions)}</b>\n"
-                    f"{remaining_time_str}\n\n"
-                    f"{question.text}\n\n")
+                    f"\n{remaining_time_str}\n\n"
+                    f"❓ {question.text}\n\n")
     # collecting options
     keyboard = []
     for i in range(question.options_count):

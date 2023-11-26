@@ -19,7 +19,8 @@ def main():
     Base.metadata.create_all(bind=db_engine)
 
     # on different commands - answer in Telegram
-    bot.add_handler(CommandHandler(["start", "help"], start))
+    bot.add_handler(CommandHandler(["start", "menu"], start))
+    bot.add_handler(CommandHandler(["help"], help_handler))
     bot.add_handler(CallbackQueryHandler(products_begin, pattern="products::begin"))
     bot.add_handler(CallbackQueryHandler(quiz_solving, pattern="quiz::"))
     bot.add_handler(CallbackQueryHandler(menu_handler, pattern="menu::"))
