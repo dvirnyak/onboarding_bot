@@ -1,28 +1,35 @@
 from config import db_engine, db_meta, TELEGRAM_TOKEN
 
-from telegram.ext import (Updater, CommandHandler,
-                          CallbackQueryHandler, Filters,
-                          MessageHandler)
+from telegram.ext import (Application, CommandHandler,
+                          CallbackQueryHandler,
+                          MessageHandler, filters)
 import sqlalchemy as db
 from base.models import Base
 from commands.start import *
 from commands.products import *
+from commands.quizes import *
+from commands.distribute_text import *
+from commands.main_menu import *
+from config import bot
 
 
-if __name__ == "__main__":
+def main():
     # initialize database if it hasn't been yet
     db.MetaData.reflect(db_meta, bind=db_engine)
     Base.metadata.create_all(bind=db_engine)
 
-    # run bot
-    updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
-    dispatcher = updater.dispatcher
+    # on different commands - answer in Telegram
+    bot.add_handler(CommandHandler(["start", "help"], start))
+    bot.add_handler(CallbackQueryHandler(products_begin, pattern="products::begin"))
+    bot.add_handler(CallbackQueryHandler(quiz_solving, pattern="quiz::"))
+    bot.add_handler(CallbackQueryHandler(menu_handler, pattern="menu::"))
+    bot.add_handler(
+        MessageHandler(callback=distribute_text, filters=filters.BaseFilter(filters.TEXT))
+    )
 
-    # distribute commands
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CallbackQueryHandler(products, pattern="products::"))
-    dispatcher.add_handler(MessageHandler(Filters.text, products))
+    # Run the bot until the user presses Ctrl-C
+    bot.run_polling(allowed_updates=Update.ALL_TYPES)
 
-    # long poll
-    updater.start_polling()
-    updater.idle()
+
+if __name__ == "__main__":
+    main()

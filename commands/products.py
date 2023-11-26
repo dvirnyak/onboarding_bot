@@ -1,75 +1,99 @@
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, Update,
-                      KeyboardButton, ReplyKeyboardMarkup)
+                      KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import CallbackContext
-from config import Session
+import json
+
+from config import Session, bot, BLOCKS_COUNT
+
 from base.utils import get_user, get_product
 from base.models import *
-from config import Session
-import json
+
+import commands
+from commands.bot_utils import error_handler, button_handler
+from commands.quizes import begin_quiz
 
 
 def get_product_text(product: Product):
-    text = (f"*{product.title}*\n\n"
+    text = (f"<b>{product.title}</b>\n\n"
             f"Описание: {product.description}\n\n"
             f"Цена: {product.price}\n\n"
-            f"Используют вместе с ")
-    text += ", ".join(json.loads(product.together))
-    text += "\n\nЭффекты: " + ", ".join(json.loads(product.together))
+            f"Используют вместе с\n- ")
+    text += "\n- ".join(json.loads(product.together))
+    text += "\n\nЭффекты:\n- " + "\n- ".join(json.loads(product.together))
 
     return text
 
 
-def products(update: Update, context: CallbackContext):
-    session = Session()
-    user = get_user(update, session)
-    action = ''
+async def show_product(update: Update, context: CallbackContext,
+                       user: User, session: Session):
+    product = await get_product(user.current_block, user.current_product, session)
+    if product is None:
+        text = "Продуктов не найдено.."
+        await context.bot.send_message(chat_id=user.chat_id,
+                                       text=text)
+        await error_handler(update, context, user, session)
+        return
 
-    query = update.callback_query
-    if query is None:
-        # TODO назад
-        if update.message.text == "Дальше" and user.state == "product_watching":
-            action = "products::next"
-    elif not (query is None):
-        query.answer()
+    num_products = len(session.query(Product)
+                       .filter_by(block=user.current_block)
+                       .all())
+    text = get_product_text(product) + f"\n\n<b>{user.current_product + 1} / {num_products}</b>"
+    keyboard = [
+        [KeyboardButton("Назад"),
+         KeyboardButton("Дальше")],
+    ]
+    markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    await context.bot.send_message(chat_id=user.chat_id,
+                                   text=text, parse_mode='HTML',
+                                   reply_markup=markup)
 
-        action, button_number = query.data.split("_")
-        print(action, button_number)
 
-        if not button_number.isnumeric() or int(button_number) < user.button_number:
-            return session.commit()
+@button_handler
+async def products_begin(update: Update, context: CallbackContext,
+                         user: User, session: Session, action: str = None):
+    if user.current_block >= BLOCKS_COUNT:
+        message_text = ("Поздравляю! Вы усвоили весь материал и прошли все тесты. \n\n"
+                        "При необходимости это можно сделать ещё раз через меню")
+        await context.bot.send_message(chat_id=user.chat_id,
+                                       text=message_text)
+        await commands.main_menu.main_menu(update, context, user, session)
+        return
 
-        user.button_number += 1
+    user.state = "product_watching"
+    message_text = f"Блок продуктов {user.current_block + 1} 📦"
+    last_message = await context.bot.send_message(chat_id=user.chat_id,
+                                                  text=message_text)
+    user.last_message_id = last_message.id
+    await show_product(update, context, user, session)
+    user.save(session)
 
-    if action == "products::begin":
-        user.state = "product_watching"
-        user.current_product = 0
 
-        text = f"Блок продуктов {user.current_block + 1} 📦"
-        context.bot.send_message(chat_id=user.chat_id,
-                                 text=text)
-        action = "products::next"
+async def next_product(update: Update, context: CallbackContext,
+                       user: User, session: Session):
+    num_products = len(session.query(Product)
+                       .filter_by(block=user.current_block)
+                       .all())
 
-    if action == "products::next":
-        product = get_product(user.current_block, user.current_product, session)
-        if product is None:
-            return session.commit()
+    if user.current_product + 1 >= num_products:
+        message_text = "Вы посмотрели все продукты в этом блоке и теперь можете пройти тест"
+        # Remove the reply markup
+        await context.bot.send_message(chat_id=user.chat_id, text=message_text,
+                                       reply_markup=ReplyKeyboardRemove())
 
-        user.current_product += 1
-        if user.current_product \
-                >= len(session.query(Product).filter_by(block=user.current_block).all()):
-            user.state = "begin_test"
+        await begin_quiz(update, context, user, session)
+        return
 
-        text = get_product_text(product)
+    user.current_product += 1
+    await show_product(update, context, user, session)
+    user.save(session)
 
-        keyboard = [
-            [KeyboardButton("Дальше")],
-            [KeyboardButton("Назад")]
-        ]
 
-        markup = ReplyKeyboardMarkup(keyboard)
+async def previous_product(update: Update, context: CallbackContext,
+                           user: User, session: Session):
+    if user.current_product == 0:
+        await commands.main_menu.main_menu(update, context, user, session)
+        return
 
-        context.bot.send_message(chat_id=user.chat_id,
-                                 text=text, parse_mode='MarkdownV2',
-                                 reply_markup=markup)
-
+    user.current_product -= 1
+    await show_product(update, context, user, session)
     user.save(session)
