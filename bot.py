@@ -35,5 +35,9 @@ def main():
     bot.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
+def start_bot():
+    main()
+
+
 if __name__ == "__main__":
     main()

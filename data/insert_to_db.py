@@ -1,6 +1,6 @@
 import json
-import os
-from config import Session
+
+from config import Session, PROJECT_PATH
 from base.models import Product, Question
 
 
@@ -90,16 +90,16 @@ def add_to_questions(body, block, session):
                             block=block)
 
         question.save(session)
-        print(question)
 
 
-if __name__ == "__main__":
+def run_insertions():
     session = Session()
     for i in range(6):
-        with open(f"block_{i + 1}/products.txt", "r") as f:
+        with open(PROJECT_PATH + "/data/" + f"block_{i + 1}/products.txt", "r") as f:
             body = f.read()
             add_to_products(body, i, session)
 
-        with open(f"block_{i + 1}/questions.txt", "r") as f:
+        with open(PROJECT_PATH + "/data/" + f"block_{i + 1}/questions.txt", "r") as f:
             body = f.read()
             add_to_questions(body, i, session)
+

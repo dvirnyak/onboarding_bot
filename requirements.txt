@@ -1,4 +1,7 @@
-python-telegram-bot==20
-requests
-python-dotenv
-sqlalchemy==2
+matplotlib==3.8.0
+numpy==1.25.2
+pandas==1.5.2
+python-dotenv==1.0.0
+python-telegram-bot==20.7
+seaborn==0.13.0
+SQLAlchemy==2
