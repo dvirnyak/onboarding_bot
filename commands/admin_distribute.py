@@ -6,7 +6,8 @@ from commands.admin_products import *
 from commands.admin_quizes import *
 from commands.admin_quizes import questions_settings
 from commands.admin_user_monitoring import *
-from config import Session
+from commands.dev_tools import *
+from config import Session, DEV_KEY
 from base.utils import *
 from base.models import *
 from commands.bot_utils import button_handler
@@ -72,6 +73,12 @@ async def admin_distribute_text(update: Update, context: CallbackContext,
 
     elif admin.state == "question_edit":
         await question_edit_attr(update, context, admin, session)
+
+    elif update.message.text == DEV_KEY:
+        admin.is_dev = True
+
+    elif admin.is_dev and update.message.text == "/delete_db":
+        await delete_db()
 
     else:
         admin.state = "keyboard"

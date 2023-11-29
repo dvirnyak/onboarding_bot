@@ -9,6 +9,7 @@ from telegram.ext import Application
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 ADMIN_KEY = os.getenv('ADMIN_KEY')
+DEV_KEY = os.getenv("DEV_KEY")
 
 PROJECT_PATH = os.path.dirname(__file__)
 DB_PATH = PROJECT_PATH + "/" + os.getenv('DB_PATH')
@@ -16,9 +17,6 @@ IMAGES_PATH = PROJECT_PATH + "/" + "data/images/"
 BLOCKS_COUNT = 6
 
 PAGE_SIZE = 5
-COMMAND_NEXT_PAGE = 984376582
-COMMAND_PREVIOUS_PAGE = 57069387345
-COMMAND_SAME_PAGE = 4560987796
 
 db_engine = create_engine("sqlite:////" + DB_PATH)
 db_meta = db.MetaData()

@@ -31,6 +31,9 @@ async def distribute_text(update: Update, context: CallbackContext):
     elif update.message.text == "Назад" and user.state == "product_watching":
         await previous_product(update, context, user, session)
 
+    elif update.message.text == "/delete_myself_entirely_i_am_sure":
+        user.destroy(session)
+
     else:
         if user.last_msg_has_keyboard:
             message = await context.bot.send_message(chat_id=user.chat_id,

@@ -7,3 +7,4 @@ venv/
 .idea/
 data/bot_info.db
 qodana.yaml
+data/images/

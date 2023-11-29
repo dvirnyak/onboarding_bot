@@ -52,6 +52,8 @@ class User(Base, CRUD):
     admin_cache: Mapped[str] = mapped_column(String(10000), nullable=True, default=None)
     admin_current_page: Mapped[int] = mapped_column(Integer(), default=0)
 
+    is_dev: Mapped[bool] = mapped_column(Boolean(), default=False)
+
     def __repr__(self) -> str:
         return f"{self.chat_id}, {self.first_name} {self.last_name}"
 
