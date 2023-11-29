@@ -147,7 +147,7 @@ async def get_formatted_user_results(user, session, admin_asked=False):
     elif len(results) == 0:
         message_text = message_text.replace(f"📌 Среднее - average %\n\n", "")
         if admin_asked:
-            message_text = message_text.replace("\n\n", "", 1)
+            message_text = message_text.replace("\n\n", "", 3)
             message_text += "🚫 <i>Не приступал к тестам</i>" if admin_asked else ""
 
     # plotting
