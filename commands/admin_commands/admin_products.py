@@ -1,9 +1,5 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMedia, InputFile, ReplyKeyboardRemove
-from telegram.ext import CallbackContext
-
-import commands
-from commands.object_managing import *
-from config import Session, stickers
+from commands.admin_commands.object_managing import *
+from config import stickers
 from base.utils import *
 from base.models import *
 from commands.bot_utils import form_paged_message, choose_block_template, get_image, error_handler

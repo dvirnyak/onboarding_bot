@@ -1,11 +1,11 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMedia, InputFile, ReplyKeyboardRemove
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
-from commands.object_managing import admin_add_object, admin_edit_object
-from config import Session, stickers
+from commands.admin_commands.object_managing import admin_add_object, admin_edit_object
+from config import stickers
 from base.utils import *
 from base.models import *
-from commands.bot_utils import form_paged_message, choose_block_template, get_image, error_handler
+from commands.bot_utils import form_paged_message, choose_block_template, error_handler
 
 page_size = 5
 
