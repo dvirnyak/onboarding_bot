@@ -41,6 +41,7 @@ async def results_image(results, title) -> InputFile:
     # convert the plot to bytes
     buf = BytesIO()
     plt.savefig(buf, format='png')
+    plt.close()
     buf.seek(0)
     image = InputFile(buf)
 
@@ -75,6 +76,7 @@ async def user_blocks_statistics(session: Session) -> InputFile:
     # convert the plot to bytes
     buf = BytesIO()
     plt.savefig(buf, format='png')
+    plt.close()
     buf.seek(0)
     image = InputFile(buf)
 
@@ -111,6 +113,7 @@ async def results_statistics_image(session: Session) -> InputFile:
     # convert the plot to bytes
     buf = BytesIO()
     plt.savefig(buf, format='png')
+    plt.close()
     buf.seek(0)
     image = InputFile(buf)
 

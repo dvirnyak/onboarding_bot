@@ -1,10 +1,8 @@
-from io import BytesIO
-
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMedia, InputFile, ReplyKeyboardRemove
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
-from commands.admin_menu import admin_menu
-from config import Session, BLOCKS_COUNT, ADMIN_KEY, stickers, bot
+from commands.admin_commands.admin_menu import admin_menu
+from config import ADMIN_KEY, stickers
 from base.utils import *
 from base.models import *
 

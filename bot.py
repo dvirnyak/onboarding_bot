@@ -1,16 +1,10 @@
-
-from config import db_engine, db_meta, TELEGRAM_TOKEN
-
-from telegram.ext import (Application, CommandHandler,
+from telegram.ext import (CommandHandler,
                           CallbackQueryHandler,
                           MessageHandler, filters)
-import sqlalchemy as db
-from base.models import Base
 from commands.start import *
-from commands.products import *
 from commands.quizes import *
 from commands.distribute_text import *
-from commands.admin_distribute import *
+from commands.admin_commands.admin_distribute import *
 from commands.main_menu import *
 from config import bot
 

@@ -1,15 +1,14 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ReplyKeyboardRemove, ReplyKeyboardMarkup, \
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ReplyKeyboardMarkup, \
     KeyboardButton
 from telegram.ext import CallbackContext
 
-from commands import admin
-from config import Session, stickers, smiles_gradient
-from base.utils import get_user, get_question
+from commands.admin_commands import admin
+from config import stickers, smiles_gradient
+from base.utils import get_question
 from base.models import *
 from config import Session, BLOCKS_COUNT
 from commands.bot_utils import error_handler, button_handler
 from datetime import datetime, timedelta
-import commands
 
 QUIZ_TIME = 301
 INTERVAL = 10

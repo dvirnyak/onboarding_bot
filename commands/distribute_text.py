@@ -1,11 +1,9 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, CallbackQuery, ReplyKeyboardRemove
+from telegram import Update, ReplyKeyboardRemove
 from telegram.ext import CallbackContext
 from base.utils import get_user
-from commands.admin import admin_login
-from commands.admin_distribute import admin_distribute_text
-from commands.admin_user_monitoring import low_results_notify, sleeping_notify
+from commands.admin_commands.admin import admin_login
+from commands.admin_commands.admin_distribute import admin_distribute_text
 from config import Session, BLOCKS_COUNT
-from commands.quizes import begin_quiz
 from commands.products import next_product, previous_product, products_begin
 from commands.main_menu import main_menu
 

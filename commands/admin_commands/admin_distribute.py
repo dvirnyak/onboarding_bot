@@ -1,14 +1,9 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMedia, InputFile, ReplyKeyboardRemove
-from telegram.ext import CallbackContext
-
-from commands.admin_menu import *
-from commands.admin_products import *
-from commands.admin_quizes import *
-from commands.admin_quizes import questions_settings
-from commands.admin_user_monitoring import *
+from commands.admin_commands.admin_menu import *
+from commands.admin_commands.admin_products import *
+from commands.admin_commands.admin_quizes import *
+from commands.admin_commands.admin_user_monitoring import *
 from commands.dev_tools import *
-from config import Session, DEV_KEY
-from base.utils import *
+from config import DEV_KEY
 from base.models import *
 from commands.bot_utils import button_handler
 
