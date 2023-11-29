@@ -60,6 +60,7 @@ async def main_menu(update: Update, context: CallbackContext,
     else:
         message_text += (f"📌 Вы завершили {user.max_block} из {BLOCKS_COUNT} блоков \n\n"
                          f"Можете улучшить текущие результаты или пройти оставшийся материал")
+
     keyboard = []
     if user.current_block != BLOCKS_COUNT:
         keyboard.append([InlineKeyboardButton("⏯ Продолжить",

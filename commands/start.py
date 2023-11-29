@@ -22,7 +22,7 @@ async def start(update: Update, context: CallbackContext):
         user.state = "start"
 
         smile = random.choice('📕📗📘📙📚📒')
-        message_text = ("🤖 Привет, это обучающий бот "
+        message_text = ("🤖 Привет, это обучающий бот <i>Letique Cosmetics</i>"
                         f"\n\n📦 Вам будут показаны {BLOCKS_COUNT} блоков товаров и информация о них"
                         ""
                         "\n\n❓ В конце каждого блока небольшой тест по изученному материалу"
@@ -68,7 +68,7 @@ async def help_handler(update: Update, context: CallbackContext):
         return
 
     smile = random.choice('📕📗📘📙📚📒')
-    message_text = ("🤖 Привет, это обучающий бот "
+    message_text = ("🤖 Привет, это обучающий бот <i>Letique Cosmetics</i>"
                     f"\n\n📦 Вам будут показаны {BLOCKS_COUNT} блоков товаров и информация о них"
                     ""
                     "\n\n❓ В конце каждого блока небольшой тест по изученному материалу"
