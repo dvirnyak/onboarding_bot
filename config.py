@@ -15,6 +15,11 @@ DB_PATH = PROJECT_PATH + "/" + os.getenv('DB_PATH')
 IMAGES_PATH = PROJECT_PATH + "/" + "data/images/"
 BLOCKS_COUNT = 6
 
+PAGE_SIZE = 5
+COMMAND_NEXT_PAGE = 984376582
+COMMAND_PREVIOUS_PAGE = 57069387345
+COMMAND_SAME_PAGE = 4560987796
+
 db_engine = create_engine("sqlite:////" + DB_PATH)
 db_meta = db.MetaData()
 Session = sessionmaker(bind=db_engine, autoflush=False)
@@ -30,7 +35,11 @@ stickers = {"respect": "CAACAgIAAxkBAAEXiu9lYr-WvQMQTq5dHQzB4XQXQK5lAQACPwAD29t-
             "error": "CAACAgIAAxkBAAEXi-plY1dcApcqkudTqDRhRiMKLEsvfwACYwAD29t-AAGMnQU950KD5zME",
             "chill": "CAACAgIAAxkBAAEXi-xlY1d2ypEFJKGdXLBCjC4QPNwrmgACYAAD29t-AAGGKUzOUOHn4TME",
             "dance": "CAACAgIAAxkBAAEXi-5lY1eYARjQrKlwskLGNmtyVkLEgAACZwAD29t-AAE93xTvYUeRnzME",
-            "think": "CAACAgIAAxkBAAEXi_JlY1fnIxl9ibrpm0kIseYzzdUl8gACXwAD29t-AAGEsFSbEa7K4zME"
+            "think": "CAACAgIAAxkBAAEXi_JlY1fnIxl9ibrpm0kIseYzzdUl8gACXwAD29t-AAGEsFSbEa7K4zME",
+            "box": "CAACAgIAAxkBAAEXkAdlZNeQsOoIBA2m9pwm8Ei78aoj7AACbgAD29t-AAFGnmdxMjn-kzME",
+            "angry": "CAACAgIAAxkBAAEXk9ZlZmAiR-0QEgZuD1j8prJduZ6PdgACcAAD29t-AAHqAAG3tyaYON0zBA",
+            "love": "CAACAgIAAxkBAAEXk-plZmTvv6XssRCM-svRpEgqHVjUPwACYQAD29t-AAH39w-bN-rU5DME",
+            "wise": "CAACAgIAAxkBAAEXk_plZm8AATPashNd-kle-uYIqjjZjYMAAjoAA9vbfgAB85QMC28W1JozBA"
             }
 smiles_gradient = "☠️😵🫣☹️😐🥴🫠🤔🫡👍😤💪😎🥈🏆🥳"
 images_cache = {}

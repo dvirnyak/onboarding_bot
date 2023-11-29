@@ -77,20 +77,15 @@ def add_to_questions(body, block, session):
         fields_array = question_txt.split("\n")
 
         num_options = len(fields_array) - 2
-        options = [None for i in range(5)]
+        options = []
 
         for i in range(num_options):
-            options[i] = clear_option_text(fields_array[1 + i])
+            options.append(clear_option_text(fields_array[1 + i]))
 
         correct_answer = int(fields_array[-1][-1])
 
         question = Question(text=fields_array[0],
-                            option_1=options[0],
-                            option_2=options[1],
-                            option_3=options[2],
-                            option_4=options[3],
-                            option_5=options[4],
-                            options_count=num_options,
+                            options=json.dumps(options),
                             correct_answer=correct_answer,
                             block=block)
 

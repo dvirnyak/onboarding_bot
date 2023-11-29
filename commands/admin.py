@@ -3,21 +3,57 @@ from io import BytesIO
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMedia, InputFile, ReplyKeyboardRemove
 from telegram.ext import CallbackContext
 
-from config import Session, BLOCKS_COUNT, ADMIN_KEY, stickers
+from commands.admin_menu import admin_menu
+from config import Session, BLOCKS_COUNT, ADMIN_KEY, stickers, bot
 from base.utils import *
 from base.models import *
 
-import pandas as pd
-import matplotlib.pyplot as plt
 
+async def notify(context: CallbackContext, user: User,
+                 session: Session, notification_type: str):
+    admins = session.query(User).filter_by(is_admin=True).all()
 
-async def admin_distribute_text(update: Update, context: CallbackContext,
-                                user: User, session: Session):
-    pass
+    notification_dictionary = {
+        "register": (0, f"Пользователь {user.tg_str()}")
+    }
 
+    notification = 0b001 if notification_type == "register" else 0b000
+    notification = 0b010 if notification_type == "quiz_finished" else notification
+    notification = 0b010 if notification_type == "all_quizes_finished" else notification
 
-async def notify(user: User, session: Session, type=""):
-    pass
+    image = None
+    # forming message
+    message_text = f"📩 Уведомление\n\n"
+    if notification_type == "register":
+        message_text += (f"🆕 Пользователь {user.tg_str()} "
+                         f"зарегистрировался в боте")
+    elif notification_type == "quiz_finished":
+        result = await get_test_results(user, session, user.current_block)
+        percent = result['correct_percent']
+        correct_count = result['correct_count']
+        count = result['count']
+
+        message_text += (f"✔️ Пользователь {user.tg_str()}\n"
+                         f"закончил <b>Тест {user.current_block + 1}</b> с результатом "
+                         f"<b>{percent} %</b>"
+                         f"\n{correct_count} / {count}\n"
+                         f"Попытка {result['attempt']}")
+    elif notification_type == "all_quizes_finished":
+        message_text, image = await get_formatted_user_results(user, session, admin_asked=True)
+        message_text = (f"🏁 Пользователь {user.tg_str()} закончил все тесты\n\n"
+                        + message_text)
+
+    for admin in admins:
+        if admin.admin_notifications & notification:
+            if notification_type == "all_quizes_finished":
+                await context.bot.send_photo(chat_id=admin.chat_id,
+                                             caption=message_text,
+                                             photo=image,
+                                             parse_mode="HTML")
+            else:
+                await context.bot.send_message(chat_id=admin.chat_id,
+                                               text=message_text,
+                                               parse_mode="HTML")
 
 
 async def admin_help(update: Update, context: CallbackContext,
@@ -36,6 +72,7 @@ async def admin_login(update: Update, context: CallbackContext,
                                        text=message_text,
                                        parse_mode="HTML")
         user.state = "admin_start"
+        await admin_menu(update, context, user, session)
         user.save(session)
     else:
         message_text = ("🔐 Не получается войти"

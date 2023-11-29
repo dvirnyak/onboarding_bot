@@ -13,17 +13,6 @@ from commands.bot_utils import error_handler, button_handler, get_image
 from commands.quizes import begin_quiz
 
 
-def get_product_text(product: Product):
-    text = (f"<b>{product.title}</b>\n\n"
-            f"📝 Описание: {product.description}\n\n"
-            f"💵 Цена: {product.price}\n\n"
-            f"🥂 Совмещают с\n- ")
-    text += "\n- ".join(json.loads(product.together))
-    text += "\n\n✨ Эффекты:\n- " + "\n- ".join(json.loads(product.together))
-
-    return text
-
-
 async def show_product(update: Update, context: CallbackContext,
                        user: User, session: Session):
     product = await get_product(user.current_block, user.current_product, session)
@@ -37,12 +26,13 @@ async def show_product(update: Update, context: CallbackContext,
     num_products = len(session.query(Product)
                        .filter_by(block=user.current_block)
                        .all())
-    text = get_product_text(product) + f"\n\n<b>{user.current_product + 1} / {num_products}</b>"
+    text = product.tg_str() + f"\n\n<b>{user.current_product + 1} / {num_products}</b>"
     keyboard = [
         [KeyboardButton("Назад"),
          KeyboardButton("Дальше")],
     ]
     markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    user.last_msg_has_keyboard = True
     image = await get_image(product.image_path, user, context)
 
     await context.bot.send_photo(chat_id=user.chat_id, photo=image,
@@ -81,6 +71,7 @@ async def next_product(update: Update, context: CallbackContext,
         # Remove the reply markup
         await context.bot.send_message(chat_id=user.chat_id, text=message_text,
                                        reply_markup=ReplyKeyboardRemove())
+        user.last_msg_has_keyboard = False
 
         await begin_quiz(update, context, user, session)
         return
@@ -96,6 +87,7 @@ async def previous_product(update: Update, context: CallbackContext,
         message = await context.bot.send_message(chat_id=user.chat_id,
                                                  text="Перенаправляю в меню..",
                                                  reply_markup=ReplyKeyboardRemove())
+        user.last_msg_has_keyboard = False
         await context.bot.deleteMessage(chat_id=user.chat_id, message_id=message.message_id)
 
         await commands.main_menu.main_menu(update, context, user, session)

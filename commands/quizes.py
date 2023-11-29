@@ -4,7 +4,7 @@ from telegram.ext import CallbackContext
 
 from commands import admin
 from config import Session, stickers, smiles_gradient
-from base.utils import get_user
+from base.utils import get_user, get_question
 from base.models import *
 from config import Session, BLOCKS_COUNT
 from commands.bot_utils import error_handler, button_handler
@@ -105,7 +105,7 @@ async def begin_quiz(update: Update, context: CallbackContext,
 
 
 async def end_quiz(user: User, context: CallbackContext, session: Session()):
-    await admin.notify(user, session, "quiz_finished")
+    await admin.notify(context, user, session, "quiz_finished")
     await show_results(user, context, session)
 
     user.quiz_index += 1
@@ -114,7 +114,7 @@ async def end_quiz(user: User, context: CallbackContext, session: Session()):
 
     if user.max_block == BLOCKS_COUNT - 1 \
             and user.current_block == BLOCKS_COUNT:
-        await admin.notify(user, session, "finished_study")
+        await admin.notify(context, user, session, "all_quizes_finished")
         message_text = ("🥳 Поздравляю!\n\n✔️ Вы усвоили весь материал и прошли все тесты\n\n"
                         "При необходимости это можно сделать ещё раз через меню")
         await context.bot.send_message(chat_id=user.chat_id,
@@ -173,6 +173,7 @@ async def show_results(user: User, context: CallbackContext, session: Session):
         [KeyboardButton("Продолжить")],
     ]
     markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    user.last_msg_has_keyboard = True
 
     sticker = stickers['respect'] if percent >= 50 else stickers['sad']
     sticker = stickers['congratulate'] if percent == 100 else sticker
@@ -210,7 +211,7 @@ async def update_time_in_message(context: CallbackContext):
 
 async def show_question(user: User, context: CallbackContext, session: Session):
     questions = session.query(Question).filter_by(block=user.current_block).all()
-    question = questions[user.current_question]
+    question = await get_question(user.current_block, user.current_question, session)
 
     # setting up left time
     remaining_time = (user.last_quiz_started + timedelta(seconds=QUIZ_TIME)
@@ -218,12 +219,12 @@ async def show_question(user: User, context: CallbackContext, session: Session):
     remaining_time_str = f"⏳Осталось: {remaining_time.seconds // 60}:{(remaining_time.seconds % 60):02d}"
 
     message_text = (f"<b>Вопрос {user.current_question + 1} / {len(questions)}</b>\n"
-                    f"\n{remaining_time_str}\n\n"
-                    f"❓ {question.text}\n\n")
+                    f"\n{remaining_time_str}\n\n")
+    message_text += question.tg_str()
     # collecting options
     keyboard = []
-    for i in range(question.options_count):
-        message_text += f"{i + 1}) {eval(f'question.option_{i + 1}')}\n"
+    options = json.loads(question.options)
+    for i in range(len(options)):
         keyboard.append(
             [InlineKeyboardButton(f"{i + 1}",
                                   callback_data=f'quiz::submit_{i + 1}_{user.button_number}')],

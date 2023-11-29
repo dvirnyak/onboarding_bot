@@ -1,3 +1,4 @@
+
 from config import db_engine, db_meta, TELEGRAM_TOKEN
 
 from telegram.ext import (Application, CommandHandler,
@@ -9,6 +10,7 @@ from commands.start import *
 from commands.products import *
 from commands.quizes import *
 from commands.distribute_text import *
+from commands.admin_distribute import *
 from commands.main_menu import *
 from config import bot
 
@@ -24,6 +26,7 @@ def main():
     bot.add_handler(CallbackQueryHandler(products_begin, pattern="products::begin"))
     bot.add_handler(CallbackQueryHandler(quiz_solving, pattern="quiz::"))
     bot.add_handler(CallbackQueryHandler(menu_handler, pattern="menu::"))
+    bot.add_handler(CallbackQueryHandler(admin_menu_handler, pattern="admin_menu::"))
     bot.add_handler(
         MessageHandler(callback=distribute_text, filters=filters.BaseFilter(filters.TEXT))
     )

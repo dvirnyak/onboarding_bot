@@ -18,7 +18,7 @@ async def start(update: Update, context: CallbackContext):
         await context.bot.send_message(chat_id=user.chat_id,
                                        text=message_text)
     elif user.state == "initial":
-        await commands.admin.notify(user, session, "register")
+        await commands.admin.notify(context, user, session, "register")
         user.state = "start"
 
         smile = random.choice('📕📗📘📙📚📒')
@@ -34,10 +34,11 @@ async def start(update: Update, context: CallbackContext):
             [InlineKeyboardButton("⚙ Ещё", callback_data=f'menu::more_{user.button_number}')]
         ]
         markup = InlineKeyboardMarkup(keyboard)
-        await context.bot.send_message(chat_id=user.chat_id,
-                                       text=message_text,
-                                       reply_markup=markup,
-                                       parse_mode="HTML")
+        message = await context.bot.send_message(chat_id=user.chat_id,
+                                                 text=message_text,
+                                                 reply_markup=markup,
+                                                 parse_mode="HTML")
+        user.last_message_id = message.message_id
 
         await context.bot.send_sticker(chat_id=user.chat_id,
                                        sticker=stickers['hello'])
