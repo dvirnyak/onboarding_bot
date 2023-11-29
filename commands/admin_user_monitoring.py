@@ -232,6 +232,7 @@ async def sleeping_notify(update: Update, context: CallbackContext,
                             "прошли тестирование не до конца</i>\n\n")
         if admin_letter is not None:
             message_to_users += f"🗣 Сообщение администратора:\n{admin_letter}"
+
         users = session.query(User).filter(User.max_block < 6).all()
         for user in users:
             await context.bot.send_message(chat_id=user.chat_id,
@@ -279,7 +280,14 @@ async def low_results_notify(update: Update, context: CallbackContext,
                             f"прошли тестирование с результатом &lt; {threshold} %</i>\n\n")
         if admin_letter is not None:
             message_to_users += f"🗣 Сообщение администратора:\n{admin_letter}"
-        users = session.query(User).filter(User.max_block < 6).all()
+
+        all_users = session.query(User).filter().all()
+        users = []
+        for user in all_users:
+            results, average = await get_tests_results(user, session)
+            if average < threshold:
+                users.append(user)
+
         for user in users:
             await context.bot.send_message(chat_id=user.chat_id,
                                            text=message_to_users,
