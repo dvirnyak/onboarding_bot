@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
-from commands.admin_commands.object_managing import admin_add_object, admin_edit_object
+from commands.admin.object_managing import admin_add_object, admin_edit_object
 from config import stickers
 from base.utils import *
 from base.models import *

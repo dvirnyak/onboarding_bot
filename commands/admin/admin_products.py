@@ -1,4 +1,4 @@
-from commands.admin_commands.object_managing import *
+from commands.admin.object_managing import *
 from config import stickers
 from base.utils import *
 from base.models import *

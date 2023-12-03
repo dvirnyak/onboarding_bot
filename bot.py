@@ -4,7 +4,7 @@ from telegram.ext import (CommandHandler,
 from commands.start import *
 from commands.quizes import *
 from commands.distribute_text import *
-from commands.admin_commands.admin_distribute import *
+from commands.admin.admin_distribute import *
 from commands.main_menu import *
 from config import bot
 

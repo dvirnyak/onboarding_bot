@@ -2,7 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ReplyKe
     KeyboardButton
 from telegram.ext import CallbackContext
 
-from commands.admin_commands import admin
+from commands.admin import admin
 from config import stickers, smiles_gradient
 from base.utils import get_question
 from base.models import *

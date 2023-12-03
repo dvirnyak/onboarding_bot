@@ -13,12 +13,18 @@ async def start(update: Update, context: CallbackContext):
     session = Session()
     user = await get_user(update, session)
 
-    if user.state == "quiz_solving":
+    if user.is_admin:
+        user.state = "help"
+        await commands.admin.admin_menu.admin_menu(update, context, user, session)
+        user.save(session)
+        return
+
+    elif user.state == "quiz_solving":
         message_text = "У вас начат тест. Сначала закончите его"
         await context.bot.send_message(chat_id=user.chat_id,
                                        text=message_text)
     elif user.state == "initial":
-        await commands.admin.notify(context, user, session, "register")
+        await commands.admin.admin.notify(context, user, session, "register")
         user.state = "start"
 
         smile = random.choice('📕📗📘📙📚📒')
@@ -56,7 +62,8 @@ async def help_handler(update: Update, context: CallbackContext):
     user = await get_user(update, session)
 
     if user.is_admin:
-        await commands.admin.admin_help(update, context, user, session)
+        user.state = "help"
+        await commands.admin.admin_menu.admin_menu(update, context, user, session)
         user.save(session)
         return
 
