@@ -24,7 +24,6 @@ async def distribute_text(update: Update, context: CallbackContext):
         await products_begin.__wrapped__(update, context, user, session)
 
     elif update.message.text == "/delete_myself_entirely_i_am_sure":
-        print("hddd")
         user.destroy(session)
 
     elif update.message.text == "Дальше" and user.state == "product_watching":
