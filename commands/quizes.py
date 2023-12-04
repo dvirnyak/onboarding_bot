@@ -86,7 +86,7 @@ async def begin_quiz(update: Update, context: CallbackContext,
     if (QUIZ_TIME - 1) // 60 != 0:
         time_str += f"{(QUIZ_TIME - 1) // 60} минут"
     if (QUIZ_TIME - 1) % 60 != 0:
-        time_str += " {(QUIZ_TIME - 1) % 60} секунд"
+        time_str += f" {(QUIZ_TIME - 1) % 60} секунд"
 
     # send actual message
     message_text = (f"<b>Тест {user.current_block + 1}</b>\n\n"
@@ -199,6 +199,7 @@ async def update_time_in_message(context: CallbackContext):
             + timedelta(seconds=QUIZ_TIME - 1)):
         while num_questions > user.current_question:
             await submit_answer(None, context, user, session, -1)
+            session.commit()
 
         await end_quiz(user, context, session)
         return
