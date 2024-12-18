@@ -32,7 +32,7 @@
 ### Установка и запуск
 `git clone https://github.com/dvirnyak/onboarding_bot`
 
-`cd quiz_telegram_bot`
+`cd onboarding_bot`
 
 `pip3 install -r requirements.txt`
 
