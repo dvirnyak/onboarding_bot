@@ -30,7 +30,7 @@
 - Кэшируются file_id картинок для Телеграма
 
 ### Установка и запуск
-`git clone https://github.com/dvirnyak/quiz_telegram_bot`
+`git clone https://github.com/dvirnyak/onboarding_bot`
 
 `cd quiz_telegram_bot`
 
