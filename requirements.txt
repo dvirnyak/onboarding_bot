@@ -3,5 +3,6 @@ numpy==1.25.2
 pandas==1.5.2
 python-dotenv==1.0.0
 python-telegram-bot==20.7
+python-telegram-bot[job-queue] --pre
 seaborn==0.13.0
 SQLAlchemy==2
